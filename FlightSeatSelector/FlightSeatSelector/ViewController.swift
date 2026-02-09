@@ -9,5 +9,5 @@ import UIKit
 import UIKitCore
 
 class ViewController: CheckpointedViewController {
-	let subview = CheckpointedView()
+	//
 }
