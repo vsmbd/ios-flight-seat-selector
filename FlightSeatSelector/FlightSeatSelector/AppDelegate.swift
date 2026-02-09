@@ -19,7 +19,8 @@ class AppDelegate: CheckpointedAppDelegate {
 		didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
 	) -> Bool {
 		if #available(iOS 13.0, *) {
-			return true  // window created by SceneDelegate
+			// window created by SceneDelegate
+			return true
 		}
 
 		// iOS 12: create window here
@@ -45,16 +46,5 @@ class AppDelegate: CheckpointedAppDelegate {
 		)
 		config.delegateClass = SceneDelegate.self
 		return config
-	}
-
-	@available(iOS 13.0, *)
-	override func app(
-		_ application: UIApplication,
-		didDiscardSceneSessions sceneSessions: Set<UISceneSession>
-	) {
-		super.app(
-			application,
-			didDiscardSceneSessions: sceneSessions
-		)
 	}
 }
