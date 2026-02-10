@@ -1,5 +1,5 @@
 {
-  "originHash" : "88c329b09977e45068a58c581ccedef9fd07b9b968c93628d6950beb1e7bff63",
+  "originHash" : "a6e90e0229a0223dd1ade3b4ca66f29fc1beb26efbf6f83af37d51b3784369af",
   "pins" : [
     {
       "identity" : "swift-core",
@@ -20,6 +20,24 @@
       }
     },
     {
+      "identity" : "swift-http-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vsmbd/swift-http-core.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "f5dcaf2f185726188d41d4ed984a7219e05ce905"
+      }
+    },
+    {
+      "identity" : "swift-json",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vsmbd/swift-json.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "bf40e60dc2b57f1a7b131a4b6d38de57e426355a"
+      }
+    },
+    {
       "identity" : "swift-kvstore",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vsmbd/swift-kvstore.git",
@@ -34,7 +52,16 @@
       "location" : "https://github.com/vsmbd/swift-telme.git",
       "state" : {
         "branch" : "main",
-        "revision" : "baa99e69ec87d95dab8a10f0775c7633c8872b20"
+        "revision" : "0588bdf16543802fe57117170c66c0d63f208e89"
+      }
+    },
+    {
+      "identity" : "swift-telme-sinks",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vsmbd/swift-telme-sinks.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "6bd1f1a92605e6fbf9a319b2cfc4b2bb86b67dbf"
       }
     },
     {
@@ -43,7 +70,7 @@
       "location" : "https://github.com/vsmbd/swift-uikit-core.git",
       "state" : {
         "branch" : "main",
-        "revision" : "27ea6d84f900dbee2b7b7ee54e555b0a5dacbf9e"
+        "revision" : "eefbaeff44a14b8e7f5b4f8190e8fb929522993f"
       }
     }
   ],

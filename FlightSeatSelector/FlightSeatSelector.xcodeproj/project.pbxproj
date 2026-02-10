@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B2C62B22F3AD6410011A4B9 /* HTTPCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4B2C62B12F3AD6410011A4B9 /* HTTPCore */; };
+		4B2C62B42F3AD6410011A4B9 /* URLSessionHTTPClient in Frameworks */ = {isa = PBXBuildFile; productRef = 4B2C62B32F3AD6410011A4B9 /* URLSessionHTTPClient */; };
+		4BA62CCB2F3B23F700DFE2FA /* TelmeSinks in Frameworks */ = {isa = PBXBuildFile; productRef = 4BA62CCA2F3B23F700DFE2FA /* TelmeSinks */; };
+		4BA62CCE2F3B4AEA00DFE2FA /* JSON in Frameworks */ = {isa = PBXBuildFile; productRef = 4BA62CCD2F3B4AEA00DFE2FA /* JSON */; };
 		4BD822642F3A006D009161EF /* UIKitCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4BD822632F3A006D009161EF /* UIKitCore */; };
 /* End PBXBuildFile section */
 
@@ -40,7 +44,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BA62CCE2F3B4AEA00DFE2FA /* JSON in Frameworks */,
+				4B2C62B42F3AD6410011A4B9 /* URLSessionHTTPClient in Frameworks */,
+				4BA62CCB2F3B23F700DFE2FA /* TelmeSinks in Frameworks */,
 				4BD822642F3A006D009161EF /* UIKitCore in Frameworks */,
+				4B2C62B22F3AD6410011A4B9 /* HTTPCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +92,10 @@
 			name = FlightSeatSelector;
 			packageProductDependencies = (
 				4BD822632F3A006D009161EF /* UIKitCore */,
+				4B2C62B12F3AD6410011A4B9 /* HTTPCore */,
+				4B2C62B32F3AD6410011A4B9 /* URLSessionHTTPClient */,
+				4BA62CCA2F3B23F700DFE2FA /* TelmeSinks */,
+				4BA62CCD2F3B4AEA00DFE2FA /* JSON */,
 			);
 			productName = FlightSeatSelector;
 			productReference = 4BD8224A2F387323009161EF /* FlightSeatSelector.app */;
@@ -115,6 +127,9 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4BD822622F3A006D009161EF /* XCRemoteSwiftPackageReference "swift-uikit-core" */,
+				4B2C62B02F3AD6410011A4B9 /* XCRemoteSwiftPackageReference "swift-http-core" */,
+				4BA62CC92F3B23F700DFE2FA /* XCRemoteSwiftPackageReference "swift-telme-sinks" */,
+				4BA62CCC2F3B4AEA00DFE2FA /* XCRemoteSwiftPackageReference "swift-json" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4BD8224B2F387323009161EF /* Products */;
@@ -354,6 +369,30 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4B2C62B02F3AD6410011A4B9 /* XCRemoteSwiftPackageReference "swift-http-core" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vsmbd/swift-http-core.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		4BA62CC92F3B23F700DFE2FA /* XCRemoteSwiftPackageReference "swift-telme-sinks" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vsmbd/swift-telme-sinks.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		4BA62CCC2F3B4AEA00DFE2FA /* XCRemoteSwiftPackageReference "swift-json" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vsmbd/swift-json.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		4BD822622F3A006D009161EF /* XCRemoteSwiftPackageReference "swift-uikit-core" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/vsmbd/swift-uikit-core.git";
@@ -365,6 +404,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4B2C62B12F3AD6410011A4B9 /* HTTPCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4B2C62B02F3AD6410011A4B9 /* XCRemoteSwiftPackageReference "swift-http-core" */;
+			productName = HTTPCore;
+		};
+		4B2C62B32F3AD6410011A4B9 /* URLSessionHTTPClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4B2C62B02F3AD6410011A4B9 /* XCRemoteSwiftPackageReference "swift-http-core" */;
+			productName = URLSessionHTTPClient;
+		};
+		4BA62CCA2F3B23F700DFE2FA /* TelmeSinks */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4BA62CC92F3B23F700DFE2FA /* XCRemoteSwiftPackageReference "swift-telme-sinks" */;
+			productName = TelmeSinks;
+		};
+		4BA62CCD2F3B4AEA00DFE2FA /* JSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4BA62CCC2F3B4AEA00DFE2FA /* XCRemoteSwiftPackageReference "swift-json" */;
+			productName = JSON;
+		};
 		4BD822632F3A006D009161EF /* UIKitCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4BD822622F3A006D009161EF /* XCRemoteSwiftPackageReference "swift-uikit-core" */;
