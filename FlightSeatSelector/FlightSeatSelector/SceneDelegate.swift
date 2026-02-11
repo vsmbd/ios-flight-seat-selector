@@ -15,6 +15,12 @@ class SceneDelegate: CheckpointedSceneDelegate {
 		willConnectTo session: UISceneSession,
 		options connectionOptions: UIScene.ConnectionOptions
 	) {
+		super.scn(
+			scene,
+			willConnectTo: session,
+			options: connectionOptions
+		)
+
 		guard let windowScene = scene as? UIWindowScene else { return }
 
 		window = UIWindow(windowScene: windowScene)
