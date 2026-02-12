@@ -2,8 +2,7 @@
 //  AircraftCabinView.swift
 //  FlightSeatSelector
 //
-//  Main rendering view for aircraft cabin using CA/CG.
-//  Renders fuselage only (seats disabled for debugging).
+//  Created by vsmbd on 12/02/26.
 //
 
 import UIKit
@@ -13,162 +12,164 @@ import UIKitCore
 
 final class AircraftCabinView: UIView {
 	// MARK: + Private scope
-	
+
+	// Data models
 	private let layout: CabinLayout
+
+	// Shared resources
 	private let sharedAnimator = ProgressAnimator()
 	private let spatialIndex = SpatialIndex()
-	
+
+	// Layers (sublayers handle their own rendering)
 	private var contentLayer: CALayer!
-	private var fuselageLayer: CAShapeLayer!
-	
+	private var fuselageLayer: FuselageLayer!
+	private var seatLayers: [String: SeatLayer] = [:]
+
 	// Transform state
 	private var currentScale: CGFloat = 1.0
 	private var currentTranslation: CGPoint = .zero
-	
+
+	// Selection state
+	private var selectedSeatId: String?
+
 	// Callbacks
 	var onSeatSelected: ((String) -> Void)?
-	
+
 	// MARK: + Init
-	
+
 	init(layout: CabinLayout) {
 		self.layout = layout
 		super.init(frame: .zero)
 		setupLayers()
 		setupGestures()
+		buildSpatialIndex()
 	}
-	
+
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) not supported")
 	}
-	
+
 	// MARK: + Lifecycle
-	
+
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		updateLayerTransforms()
+		updateRendering()
 	}
-	
+
 	// MARK: + Setup
-	
+
 	private func setupLayers() {
-		// Content layer holds all cabin elements
+		// Content layer (container)
 		contentLayer = CALayer()
 		contentLayer.masksToBounds = false
 		layer.addSublayer(contentLayer)
-		
-		// Fuselage outline
-		fuselageLayer = CAShapeLayer()
-		fuselageLayer.fillColor = UIColor.systemBlue.withAlphaComponent(0.05).cgColor
-		if #available(iOS 13.0, *) {
-			fuselageLayer.strokeColor = UIColor.systemGray4.cgColor
-		} else {
-			fuselageLayer.strokeColor = UIColor(white: 0.82, alpha: 1.0).cgColor
-		}
-		fuselageLayer.lineWidth = 2.0
+
+		// Fuselage layer (knows only about fuselage geometry)
+		fuselageLayer = FuselageLayer(
+			geometry: layout.fuselage,
+			bounds: layout.bounds
+		)
 		contentLayer.addSublayer(fuselageLayer)
+
+		// TODO: Create seat layers (disabled for debugging)
+		// for seat in layout.seats {
+		//     let seatLayer = SeatLayer(seat: seat, bounds: layout.bounds)
+		//     seatLayers[seat.id] = seatLayer
+		//     contentLayer.addSublayer(seatLayer)
+		// }
 	}
-	
+
 	private func setupGestures() {
-		// Tap for selection
 		let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
 		addGestureRecognizer(tap)
-		
-		// Pan for scrolling
+
 		let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
 		addGestureRecognizer(pan)
-		
-		// Pinch for zoom
+
 		let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
 		addGestureRecognizer(pinch)
 	}
-	
-	// MARK: + Layout
-	
-	private func updateLayerTransforms() {
+
+	private func buildSpatialIndex() {
+		spatialIndex.clear()
+		for (index, seat) in layout.seats.enumerated() {
+			spatialIndex.insert(seatIndex: index, geometry: seat.geometry)
+		}
+	}
+
+	// MARK: + Rendering
+
+	/// Update all sublayers with current rendering context
+	private func updateRendering() {
 		let viewSize = bounds.size
 		guard viewSize.width > 0, viewSize.height > 0 else { return }
-		
-		// Update fuselage path
-		let fuselagePath = layout.fuselage.path(bounds: layout.bounds)
-		let transformedFuselagePath = CGMutablePath()
-		
-		// Transform fuselage to view coordinates
-		let fuselageTransform = makeTransform(forViewSize: viewSize)
-		transformedFuselagePath.addPath(fuselagePath, transform: fuselageTransform)
-		fuselageLayer.path = transformedFuselagePath
-		
-		// Update content layer transform
+
+		// Create rendering context (shared state)
+		let context = RenderingContext(
+			bounds: layout.bounds,
+			viewSize: viewSize,
+			scale: currentScale,
+			translation: currentTranslation
+		)
+
+		// Update fuselage (it handles its own rendering)
+		fuselageLayer.updatePath(context: context)
+
+		// TODO: Update seat layers
+		// for (seatId, seatLayer) in seatLayers {
+		//     guard let seat = layout.seats.first(where: { $0.id == seatId }) else { continue }
+		//     seatLayer.updatePosition(seat: seat, context: context)
+		// }
+
 		contentLayer.frame = bounds
 	}
-	
-	private func makeTransform(forViewSize viewSize: CGSize) -> CGAffineTransform {
-		// Calculate scale to fit fuselage in view
-		let scaleX = (viewSize.width * 0.8) / layout.fuselage.width
-		let scaleY = (viewSize.height * 0.9) / layout.fuselage.length
-		let baseScale = min(scaleX, scaleY)
-		
-		let effectiveScale = baseScale * currentScale
-		
-		// Center in view
-		let offsetX = viewSize.width / 2 + currentTranslation.x
-		let offsetY = viewSize.height * 0.05 + currentTranslation.y
-		
-		return CGAffineTransform(translationX: offsetX, y: offsetY)
-			.scaledBy(x: effectiveScale, y: effectiveScale)
-	}
-	
-	// MARK: + Hit Testing (disabled for now)
-	
-	// TODO: Re-enable when seats are added back
-	
+
 	// MARK: + Gestures
-	
+
 	@objc private func handleTap(_ gesture: UITapGestureRecognizer) {
-		// TODO: Re-enable seat selection when seats are added back
+		// TODO: Re-enable seat selection
 		print("Tapped at: \(gesture.location(in: self))")
 	}
-	
+
 	@objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
 		let translation = gesture.translation(in: self)
-		
+
 		switch gesture.state {
 		case .changed:
 			currentTranslation.x += translation.x
 			currentTranslation.y += translation.y
 			gesture.setTranslation(.zero, in: self)
 			setNeedsLayout()
-			
-		case .ended:
-			// Optional: Add momentum/deceleration
-			break
-			
+
 		default:
 			break
 		}
 	}
-	
+
 	@objc private func handlePinch(_ gesture: UIPinchGestureRecognizer) {
 		switch gesture.state {
 		case .changed:
 			let newScale = currentScale * gesture.scale
-			currentScale = max(0.5, min(5.0, newScale)) // Clamp scale
+			currentScale = max(0.5, min(3.0, newScale))
 			gesture.scale = 1.0
 			setNeedsLayout()
-			
+
 		default:
 			break
 		}
 	}
-	
-	// MARK: + Selection (disabled for now)
-	
-	// TODO: Re-enable when seats are added back
-	
+
 	// MARK: + Public API
-	
+
+	/// Reset view to initial state
 	func resetView() {
 		currentScale = 1.0
 		currentTranslation = .zero
 		setNeedsLayout()
+	}
+
+	/// Get shared animator (for seat selection animations)
+	func animator() -> ProgressAnimator {
+		sharedAnimator
 	}
 }

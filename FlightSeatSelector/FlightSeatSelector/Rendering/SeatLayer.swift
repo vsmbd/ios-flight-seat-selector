@@ -12,11 +12,10 @@ import UIKitCore
 
 final class SeatLayer: CAShapeLayer {
 	// MARK: + Private scope
-	
-	private let seat: CabinLayout.SeatDefinition
-	private let cabinBounds: CabinBounds
+
+	private var seat: CabinLayout.SeatDefinition
 	private var isSelected: Bool = false
-	
+
 	private lazy var labelLayer: CATextLayer = {
 		let layer = CATextLayer()
 		layer.fontSize = 14
@@ -29,12 +28,11 @@ final class SeatLayer: CAShapeLayer {
 		}
 		return layer
 	}()
-	
+
 	// MARK: + Init
-	
-	init(seat: CabinLayout.SeatDefinition, bounds: CabinBounds) {
+
+	init(seat: CabinLayout.SeatDefinition) {
 		self.seat = seat
-		self.cabinBounds = bounds
 		super.init()
 		setup()
 	}
@@ -45,7 +43,6 @@ final class SeatLayer: CAShapeLayer {
 		}
 
 		self.seat = layer.seat
-		self.cabinBounds = layer.cabinBounds
 		super.init(layer: layer)
 		setup()
 	}
@@ -53,45 +50,65 @@ final class SeatLayer: CAShapeLayer {
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) not supported")
 	}
-	
+
 	// MARK: + Setup
-	
+
 	private func setup() {
-		// Set initial size and shape
+		// Set initial size and shape (in points, will be scaled by context)
 		let seatSize = CGSize(
-			width: cabinBounds.seatWidth * 100, // Convert to points
-			height: cabinBounds.seatDepth * 100 * 0.9
+			width: seat.geometry.width * 100,
+			height: seat.geometry.depth * 100
 		)
-		
+
 		self.bounds = CGRect(origin: .zero, size: seatSize)
-		
+
 		// Create seat shape with rounded corners
 		let seatPath = UIBezierPath(
 			roundedRect: self.bounds,
 			cornerRadius: seat.geometry.cornerRadius * 100
 		)
 		self.path = seatPath.cgPath
-		
+
 		// Apply colors based on seat type and status
 		updateAppearance(animated: false)
-		
+
 		// Add label for seat letter
 		labelLayer.frame = self.bounds
 		labelLayer.string = seat.column
 		addSublayer(labelLayer)
-		
+
 		// Add subtle shadow for depth
 		self.shadowColor = UIColor.black.cgColor
 		self.shadowOffset = CGSize(width: 0, height: 2)
 		self.shadowRadius = 2
 		self.shadowOpacity = 0.1
 	}
-	
+
+	// MARK: + Public API
+
+	/// Update seat position based on rendering context
+	func updatePosition(context: RenderingContext) {
+		let viewPoint = context.toViewCoordinates(seat.geometry.center)
+		position = viewPoint
+
+		// Scale line width based on zoom
+		lineWidth = max(0.5, min(2.0, 1.0 / context.scale))
+
+		// Scale label font
+		labelLayer.fontSize = 14 * context.scale
+	}
+
+	/// Update seat data model
+	func updateSeat(_ newSeat: CabinLayout.SeatDefinition) {
+		seat = newSeat
+		updateAppearance(animated: false)
+	}
+
 	// MARK: + Appearance
-	
+
 	private func updateAppearance(animated: Bool) {
 		let colors = colorsForState()
-		
+
 		if animated {
 			// Animate color changes
 			let bgAnimation = CABasicAnimation(keyPath: "fillColor")
@@ -99,21 +116,21 @@ final class SeatLayer: CAShapeLayer {
 			bgAnimation.toValue = colors.fill
 			bgAnimation.duration = 0.25
 			add(bgAnimation, forKey: "fillColor")
-			
+
 			let strokeAnimation = CABasicAnimation(keyPath: "strokeColor")
 			strokeAnimation.fromValue = strokeColor
 			strokeAnimation.toValue = colors.stroke
 			strokeAnimation.duration = 0.25
 			add(strokeAnimation, forKey: "strokeColor")
 		}
-		
+
 		fillColor = colors.fill
 		strokeColor = colors.stroke
 		lineWidth = 1.0
-		
+
 		labelLayer.foregroundColor = colors.text
 	}
-	
+
 	private func colorsForState() -> (fill: CGColor, stroke: CGColor, text: CGColor) {
 		if isSelected {
 			return (
@@ -122,7 +139,7 @@ final class SeatLayer: CAShapeLayer {
 				UIColor.white.cgColor
 			)
 		}
-		
+
 		if !seat.isAvailable {
 			if #available(iOS 13.0, *) {
 				return (
@@ -138,7 +155,7 @@ final class SeatLayer: CAShapeLayer {
 				)
 			}
 		}
-		
+
 		// Color based on cabin section
 		switch seat.sectionType {
 		case .clubEurope:
@@ -147,14 +164,14 @@ final class SeatLayer: CAShapeLayer {
 				UIColor.systemBlue.cgColor,
 				UIColor.systemBlue.cgColor
 			)
-			
+
 		case .exitRow:
 			return (
 				UIColor.systemGreen.withAlphaComponent(0.15).cgColor,
 				UIColor.systemGreen.cgColor,
 				UIColor.systemGreen.cgColor
 			)
-			
+
 		case .euroTraveller:
 			if #available(iOS 13.0, *) {
 				return (
@@ -171,27 +188,27 @@ final class SeatLayer: CAShapeLayer {
 			}
 		}
 	}
-	
+
 	// MARK: + Selection
-	
+
 	func setSelected(_ selected: Bool, animated: Bool, animator: ProgressAnimator) {
 		guard isSelected != selected else { return }
 		isSelected = selected
-		
+
 		if animated {
 			// Animate with shared animator
 			let startScale = transform.m11
 			let targetScale: CGFloat = selected ? 1.1 : 1.0
-			
+
 			animator.start(
 				timingFunction: .easeInEaseOut(0.3),
 				progress: { [weak self] progress in
 					guard let self = self else { return }
-					
+
 					// Scale animation
 					let scale = startScale + (targetScale - startScale) * progress
 					self.transform = CATransform3DMakeScale(scale, scale, 1.0)
-					
+
 					// Update colors mid-animation
 					if progress > 0.5 {
 						self.updateAppearance(animated: false)
@@ -205,16 +222,5 @@ final class SeatLayer: CAShapeLayer {
 			updateAppearance(animated: false)
 			transform = selected ? CATransform3DMakeScale(1.1, 1.1, 1.0) : CATransform3DIdentity
 		}
-	}
-	
-	// MARK: + Transform
-	
-	func updateScale(_ scale: CGFloat) {
-		// Adjust label font size based on zoom level
-		let baseFontSize: CGFloat = 14
-		labelLayer.fontSize = baseFontSize * scale
-		
-		// Keep line width consistent at different zoom levels
-		lineWidth = max(0.5, min(2.0, 1.0 / scale))
 	}
 }
