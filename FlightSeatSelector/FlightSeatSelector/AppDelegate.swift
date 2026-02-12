@@ -54,7 +54,7 @@ class AppDelegate: CheckpointedAppDelegate {
 				)
 			)
 
-			Telme.default.addRecordSink(clickHouseSink)
+			//Telme.default.addRecordSink(clickHouseSink)
 			telmeRecordSink = clickHouseSink
 		}
 	}
@@ -75,7 +75,7 @@ class AppDelegate: CheckpointedAppDelegate {
 
 		// iOS 12: create window here
 		window = UIWindow(frame: UIScreen.main.bounds)
-		window?.rootViewController = ViewController()
+		window?.rootViewController = CheckpointedNavigationController(rootViewController: AircraftListViewController(viewId: "aircraft-list"))
 		window?.makeKeyAndVisible()
 
 		return superResult
