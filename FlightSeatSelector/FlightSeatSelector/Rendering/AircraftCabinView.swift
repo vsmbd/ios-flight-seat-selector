@@ -151,7 +151,7 @@ final class AircraftCabinView: UIView {
 		switch gesture.state {
 		case .changed:
 			let newScale = currentScale * gesture.scale
-			currentScale = max(0.5, min(3.0, newScale)) // Clamp scale
+			currentScale = max(0.5, min(5.0, newScale)) // Clamp scale
 			gesture.scale = 1.0
 			setNeedsLayout()
 			

@@ -16,7 +16,7 @@ struct CabinSection: Sendable {
 		case euroTraveller // Economy (3-3 configuration)
 		case exitRow       // Emergency exit rows
 	}
-	
+
 	let type: SectionType
 	let startRow: Int
 	let endRow: Int
@@ -26,22 +26,22 @@ struct CabinSection: Sendable {
 // MARK: - SeatConfiguration
 
 struct SeatConfiguration: Sendable {
-	let leftSeats: [String]   // e.g., ["A", "B"]
-	let rightSeats: [String]  // e.g., ["E", "F"]
-	let middleSeats: [String] // e.g., ["C", "D"] or empty
-	
+	let leftSeats: [String]
+	let rightSeats: [String]
+	let middleSeats: [String]
+
 	static let clubEurope = SeatConfiguration(
 		leftSeats: ["A", "C"],
 		rightSeats: ["D", "F"],
 		middleSeats: ["B", "E"] // Middle 2-seat pairs
 	)
-	
+
 	static let euroTraveller = SeatConfiguration(
 		leftSeats: ["A", "B", "C"],
 		rightSeats: ["D", "E", "F"],
 		middleSeats: []
 	)
-	
+
 	var allColumns: [String] {
 		leftSeats + middleSeats + rightSeats
 	}
@@ -56,7 +56,7 @@ struct CabinLayout: Sendable {
 	let amenities: [AmenityDefinition]
 	let bounds: CabinBounds
 	let fuselage: FuselageGeometry
-	
+
 	struct SeatDefinition: Sendable, Identifiable {
 		let id: String           // e.g., "12A"
 		let row: Int
@@ -66,18 +66,18 @@ struct CabinLayout: Sendable {
 		let isExitRow: Bool
 		let isAvailable: Bool    // For demo, randomize later
 	}
-	
+
 	struct AmenityDefinition: Sendable, Identifiable {
 		let id: String
 		let type: AmenityGeometry.AmenityType
 		let geometry: AmenityGeometry
 	}
-	
+
 	/// Generate complete A320 layout matching reference images
 	static func a320() -> CabinLayout {
 		let bounds = CabinBounds.a320
 		let fuselage = FuselageGeometry.a320
-		
+
 		// Define sections (matching reference images)
 		let sections: [CabinSection] = [
 			CabinSection(
@@ -99,19 +99,19 @@ struct CabinLayout: Sendable {
 				seatConfiguration: .euroTraveller
 			)
 		]
-		
+
 		// Generate seats
 		var seats: [SeatDefinition] = []
 		var currentY: CGFloat = 2.0 // Start position from nose
-		
+
 		for section in sections {
 			let config = section.seatConfiguration
 			let seatPitch = section.type == .clubEurope ? 0.9 : 0.76
-			
+
 			for row in section.startRow...section.endRow {
 				// Calculate positions for this row
 				let rowY = currentY
-				
+
 				// Left seats
 				for (index, column) in config.leftSeats.enumerated() {
 					let seatX = -bounds.width / 2 + 0.3 + (CGFloat(index) * (bounds.seatWidth + 0.05))
@@ -131,7 +131,7 @@ struct CabinLayout: Sendable {
 						isAvailable: Bool.random() // TODO: Load from data
 					))
 				}
-				
+
 				// Middle seats (Club Europe only)
 				if !config.middleSeats.isEmpty {
 					for (index, column) in config.middleSeats.enumerated() {
@@ -153,7 +153,7 @@ struct CabinLayout: Sendable {
 						))
 					}
 				}
-				
+
 				// Right seats
 				for (index, column) in config.rightSeats.enumerated() {
 					let seatX = bounds.width / 2 - 0.3 - (CGFloat(config.rightSeats.count - 1 - index) * (bounds.seatWidth + 0.05))
@@ -173,17 +173,17 @@ struct CabinLayout: Sendable {
 						isAvailable: Bool.random()
 					))
 				}
-				
+
 				currentY += seatPitch
 			}
-			
+
 			// Add spacing between sections
 			currentY += 0.5
 		}
-		
+
 		// Generate amenities (lavatories, galleys)
 		let amenities = generateAmenities(bounds: bounds, seatYEnd: currentY)
-		
+
 		return CabinLayout(
 			sections: sections,
 			seats: seats,
@@ -192,10 +192,10 @@ struct CabinLayout: Sendable {
 			fuselage: fuselage
 		)
 	}
-	
+
 	private static func generateAmenities(bounds: CabinBounds, seatYEnd: CGFloat) -> [AmenityDefinition] {
 		var amenities: [AmenityDefinition] = []
-		
+
 		// Front lavatories
 		amenities.append(AmenityDefinition(
 			id: "lav-front-left",
@@ -206,7 +206,7 @@ struct CabinLayout: Sendable {
 				label: "LAV"
 			)
 		))
-		
+
 		// Front galley
 		amenities.append(AmenityDefinition(
 			id: "galley-front-right",
@@ -217,7 +217,7 @@ struct CabinLayout: Sendable {
 				label: nil
 			)
 		))
-		
+
 		// Rear lavatories
 		amenities.append(AmenityDefinition(
 			id: "lav-rear-left",
@@ -228,7 +228,7 @@ struct CabinLayout: Sendable {
 				label: "LAV"
 			)
 		))
-		
+
 		amenities.append(AmenityDefinition(
 			id: "lav-rear-right",
 			type: .lavatory,
@@ -238,7 +238,7 @@ struct CabinLayout: Sendable {
 				label: "LAV"
 			)
 		))
-		
+
 		return amenities
 	}
 }
