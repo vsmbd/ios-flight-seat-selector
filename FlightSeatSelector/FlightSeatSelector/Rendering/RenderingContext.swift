@@ -17,9 +17,13 @@ struct RenderingContext: Sendable {
 	let scale: CGFloat
 	let translation: CGPoint
 
-	/// Transform cabin coordinates to view coordinates
+	/// Transform cabin coordinates to view coordinates (with translation applied)
 	func toViewCoordinates(_ cabin: CabinCoordinate) -> CGPoint {
-		bounds.toViewCoordinates(cabin, viewSize: viewSize, scale: scale)
+		let base = bounds.toViewCoordinates(cabin, viewSize: viewSize, scale: scale)
+		return CGPoint(
+			x: base.x + translation.x,
+			y: base.y + translation.y
+		)
 	}
 
 	/// Transform view coordinates to cabin coordinates

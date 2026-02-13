@@ -33,7 +33,7 @@ final class AircraftCabinView: UIView {
 	private var selectedSeatId: String?
 
 	// Callbacks
-	var onSeatSelected: ((String) -> Void)?
+	var onSeatSelected: ((String?) -> Void)?
 
 	// MARK: + Init
 
@@ -61,22 +61,23 @@ final class AircraftCabinView: UIView {
 	private func setupLayers() {
 		// Content layer (container)
 		contentLayer = CALayer()
-		contentLayer.masksToBounds = false
+		contentLayer.masksToBounds = true
 		layer.addSublayer(contentLayer)
 
-		// Fuselage layer (knows only about fuselage geometry)
+		// Fuselage layer (bottom - knows only about fuselage geometry)
 		fuselageLayer = FuselageLayer(
 			geometry: layout.fuselage,
 			bounds: layout.bounds
 		)
+		//fuselageLayer.backgroundColor = UIColor.red.cgColor
 		contentLayer.addSublayer(fuselageLayer)
 
-		// TODO: Create seat layers (disabled for debugging)
-		// for seat in layout.seats {
-		//     let seatLayer = SeatLayer(seat: seat, bounds: layout.bounds)
-		//     seatLayers[seat.id] = seatLayer
-		//     contentLayer.addSublayer(seatLayer)
-		// }
+		// Seat layers (on top of fuselage - each knows only its own seat data)
+		for seat in layout.seats {
+			let seatLayer = SeatLayer(seat: seat)
+			seatLayers[seat.id] = seatLayer
+			contentLayer.addSublayer(seatLayer)
+		}
 	}
 
 	private func setupGestures() {
@@ -115,11 +116,10 @@ final class AircraftCabinView: UIView {
 		// Update fuselage (it handles its own rendering)
 		fuselageLayer.updatePath(context: context)
 
-		// TODO: Update seat layers
-		// for (seatId, seatLayer) in seatLayers {
-		//     guard let seat = layout.seats.first(where: { $0.id == seatId }) else { continue }
-		//     seatLayer.updatePosition(seat: seat, context: context)
-		// }
+		// Update seat layers (each handles its own position/scale)
+		for (_, seatLayer) in seatLayers {
+			seatLayer.updatePosition(context: context)
+		}
 
 		contentLayer.frame = bounds
 	}
@@ -127,8 +127,36 @@ final class AircraftCabinView: UIView {
 	// MARK: + Gestures
 
 	@objc private func handleTap(_ gesture: UITapGestureRecognizer) {
-		// TODO: Re-enable seat selection
-		print("Tapped at: \(gesture.location(in: self))")
+		let point = gesture.location(in: self)
+
+		// Create context for coordinate transformation
+		let context = RenderingContext(
+			bounds: layout.bounds,
+			viewSize: bounds.size,
+			scale: currentScale,
+			translation: currentTranslation
+		)
+
+		// Convert to cabin coordinates
+		let cabinCoord = context.toCabinCoordinates(point)
+
+		// Query spatial index for nearby seats
+		let candidateIndices = spatialIndex.query(at: cabinCoord)
+
+		// Find tapped seat
+		for index in candidateIndices {
+			guard index < layout.seats.count else { continue }
+			let seat = layout.seats[index]
+			if seat.geometry.contains(cabinCoord), seat.isAvailable {
+				selectSeat(seat.id)
+				return
+			}
+		}
+
+		// No seat tapped - deselect if any selected
+		if selectedSeatId != nil {
+			selectSeat(nil)
+		}
 	}
 
 	@objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
@@ -156,6 +184,31 @@ final class AircraftCabinView: UIView {
 
 		default:
 			break
+		}
+	}
+
+	// MARK: + Selection
+
+	private func selectSeat(_ seatId: String?) {
+		// Deselect previous
+		if let previousId = selectedSeatId, let previousLayer = seatLayers[previousId] {
+			previousLayer.setSelected(false, animated: true, animator: sharedAnimator)
+		}
+
+		// Select new (or deselect if tapping same seat)
+		if selectedSeatId == seatId {
+			selectedSeatId = nil
+			onSeatSelected?(nil)
+		} else if let seatId = seatId, let seatLayer = seatLayers[seatId] {
+			selectedSeatId = seatId
+			seatLayer.setSelected(true, animated: true, animator: sharedAnimator)
+
+			// Haptic feedback
+			let generator = UIImpactFeedbackGenerator(style: .medium)
+			generator.impactOccurred()
+
+			// Notify callback with non-optional
+			onSeatSelected?(seatId)
 		}
 	}
 

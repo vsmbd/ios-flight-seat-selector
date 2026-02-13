@@ -36,14 +36,14 @@ struct CabinBounds: Sendable {
 	let seatDepth: CGFloat
 	let rowSpacing: CGFloat
 
-	// A320 typical dimensions
+	/// A320 real-world dimensions (meters). Sources: Airbus cabin data, 18" seat width typical.
 	static let a320 = CabinBounds(
-		width: 3.7,           // ~3.7m cabin width
-		length: 27.5,         // ~27.5m passenger cabin
-		aisleWidth: 0.5,      // 50cm aisle
-		seatWidth: 0.46,      // 46cm seat width
-		seatDepth: 0.8,       // 80cm seat pitch (economy)
-		rowSpacing: 0.1       // 10cm between seat rows
+		width: 3.71,          // Cabin interior width (12 ft 2 in)
+		length: 27.5,         // Passenger cabin length (90 ft 2 in)
+		aisleWidth: 0.5,      // Single-aisle width (~50 cm)
+		seatWidth: 0.457,     // 18 in seat width (typical economy)
+		seatDepth: 0.45,      // Seat depth front-to-back (~45 cm)
+		rowSpacing: 0.25      // Nominal gap between rows / legroom (layout uses seatPitch)
 	)
 
 	/// Convert cabin coordinates to view coordinates

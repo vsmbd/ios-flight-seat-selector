@@ -112,14 +112,14 @@ struct CabinLayout: Sendable {
 				// Calculate positions for this row
 				let rowY = currentY
 
-				// Left seats
-				for (index, column) in config.leftSeats.enumerated() {
-					let seatX = -bounds.width / 2 + 0.3 + (CGFloat(index) * (bounds.seatWidth + 0.05))
+			// Left seats
+			for (index, column) in config.leftSeats.enumerated() {
+				let seatX = -bounds.width / 2 + 0.15 + (CGFloat(index) * (bounds.seatWidth + 0.02))
 					let geometry = SeatGeometry(
 						center: CabinCoordinate(seatX, rowY),
 						width: bounds.seatWidth,
-						depth: bounds.seatDepth * 0.9,
-						cornerRadius: 0.08
+						depth: bounds.seatDepth,
+						cornerRadius: 0.03
 					)
 					seats.append(SeatDefinition(
 						id: "\(row)\(column)",
@@ -132,15 +132,15 @@ struct CabinLayout: Sendable {
 					))
 				}
 
-				// Middle seats (Club Europe only)
-				if !config.middleSeats.isEmpty {
-					for (index, column) in config.middleSeats.enumerated() {
-						let seatX = -bounds.seatWidth - 0.025 + (CGFloat(index) * (bounds.seatWidth + 0.05))
+			// Middle seats (Club Europe only)
+			if !config.middleSeats.isEmpty {
+				for (index, column) in config.middleSeats.enumerated() {
+					let seatX = -bounds.seatWidth - 0.01 + (CGFloat(index) * (bounds.seatWidth + 0.02))
 						let geometry = SeatGeometry(
 							center: CabinCoordinate(seatX, rowY),
 							width: bounds.seatWidth,
-							depth: bounds.seatDepth * 0.9,
-							cornerRadius: 0.08
+							depth: bounds.seatDepth,
+							cornerRadius: 0.03
 						)
 						seats.append(SeatDefinition(
 							id: "\(row)\(column)",
@@ -154,14 +154,14 @@ struct CabinLayout: Sendable {
 					}
 				}
 
-				// Right seats
-				for (index, column) in config.rightSeats.enumerated() {
-					let seatX = bounds.width / 2 - 0.3 - (CGFloat(config.rightSeats.count - 1 - index) * (bounds.seatWidth + 0.05))
+			// Right seats
+			for (index, column) in config.rightSeats.enumerated() {
+				let seatX = bounds.width / 2 - 0.15 - (CGFloat(config.rightSeats.count - 1 - index) * (bounds.seatWidth + 0.02))
 					let geometry = SeatGeometry(
 						center: CabinCoordinate(seatX, rowY),
 						width: bounds.seatWidth,
-						depth: bounds.seatDepth * 0.9,
-						cornerRadius: 0.08
+						depth: bounds.seatDepth,
+						cornerRadius: 0.03
 					)
 					seats.append(SeatDefinition(
 						id: "\(row)\(column)",

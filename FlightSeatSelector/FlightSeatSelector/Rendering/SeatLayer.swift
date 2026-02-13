@@ -18,7 +18,7 @@ final class SeatLayer: CAShapeLayer {
 
 	private lazy var labelLayer: CATextLayer = {
 		let layer = CATextLayer()
-		layer.fontSize = 14
+		layer.fontSize = 8
 		layer.alignmentMode = .center
 		layer.contentsScale = UIScreen.main.scale
 		if #available(iOS 13.0, *) {
@@ -54,18 +54,19 @@ final class SeatLayer: CAShapeLayer {
 	// MARK: + Setup
 
 	private func setup() {
-		// Set initial size and shape (in points, will be scaled by context)
+		// Set initial size in cabin coordinate units (meters)
+		// These will be scaled by RenderingContext to screen points
 		let seatSize = CGSize(
-			width: seat.geometry.width * 100,
-			height: seat.geometry.depth * 100
+			width: seat.geometry.width,
+			height: seat.geometry.depth
 		)
-
+		
 		self.bounds = CGRect(origin: .zero, size: seatSize)
-
+		
 		// Create seat shape with rounded corners
 		let seatPath = UIBezierPath(
 			roundedRect: self.bounds,
-			cornerRadius: seat.geometry.cornerRadius * 100
+			cornerRadius: seat.geometry.cornerRadius
 		)
 		self.path = seatPath.cgPath
 
@@ -90,12 +91,21 @@ final class SeatLayer: CAShapeLayer {
 	func updatePosition(context: RenderingContext) {
 		let viewPoint = context.toViewCoordinates(seat.geometry.center)
 		position = viewPoint
-
-		// Scale line width based on zoom
-		lineWidth = max(0.5, min(2.0, 1.0 / context.scale))
-
-		// Scale label font
-		labelLayer.fontSize = 14 * context.scale
+		
+		// Calculate effective scale for seat dimensions
+		let scaleX = (context.viewSize.width * 0.8) / context.bounds.width
+		let scaleY = (context.viewSize.height * 0.9) / context.bounds.length
+		let baseScale = min(scaleX, scaleY)
+		let effectiveScale = baseScale * context.scale
+		
+		// Apply scale transform to match coordinate system
+		transform = CATransform3DMakeScale(effectiveScale, effectiveScale, 1.0)
+		
+		// Adjust line width inversely to scale (keep stroke visible)
+		lineWidth = max(0.5, min(2.0, 1.0 / effectiveScale))
+		
+		// Scale label font appropriately (very small)
+		labelLayer.fontSize = max(5, min(8, 6 * effectiveScale))
 	}
 
 	/// Update seat data model
