@@ -24,7 +24,11 @@ class SceneDelegate: CheckpointedSceneDelegate {
 		guard let windowScene = scene as? UIWindowScene else { return }
 
 		window = UIWindow(windowScene: windowScene)
-		window?.rootViewController = CheckpointedNavigationController(rootViewController: AircraftListViewController(viewId: "aircraft-list"))
+		let aircraftListVC = AircraftListViewController(viewId: "aircraft-list")
+		aircraftListVC.selectedAircraft = Aircraft.supported.first
+		window?.rootViewController = CheckpointedNavigationController(
+			rootViewController: aircraftListVC
+		)
 		window?.makeKeyAndVisible()
 	}
 }

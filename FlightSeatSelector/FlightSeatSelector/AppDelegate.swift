@@ -45,7 +45,7 @@ class AppDelegate: CheckpointedAppDelegate {
 			"timezone_offset_sec": .int(Int(timeInfo.timezoneOffsetSeconds)),
 		]
 
-		if let url = URL(string: "https://sees-investigated-ham-nations.trycloudflare.com/telme/ingest") {
+		if let url = URL(string: "https://pre-dept-eligible-rice.trycloudflare.com/telme/ingest") {
 			let clickHouseSink = ClickHouseTelmeSink(
 				http: URLSessionHTTPClient(session: .shared),
 				config: .init(
@@ -54,7 +54,7 @@ class AppDelegate: CheckpointedAppDelegate {
 				)
 			)
 
-			//Telme.default.addRecordSink(clickHouseSink)
+			Telme.default.addRecordSink(clickHouseSink)
 			telmeRecordSink = clickHouseSink
 		}
 	}
@@ -75,7 +75,11 @@ class AppDelegate: CheckpointedAppDelegate {
 
 		// iOS 12: create window here
 		window = UIWindow(frame: UIScreen.main.bounds)
-		window?.rootViewController = CheckpointedNavigationController(rootViewController: AircraftListViewController(viewId: "aircraft-list"))
+		let aircraftListVC = AircraftListViewController(viewId: "aircraft-list")
+		aircraftListVC.selectedAircraft = Aircraft.supported.first
+		window?.rootViewController = CheckpointedNavigationController(
+			rootViewController: aircraftListVC
+		)
 		window?.makeKeyAndVisible()
 
 		return superResult

@@ -29,7 +29,22 @@ final class AircraftListViewController: CheckpointedViewController {
 
 	private var aircrafts: [Aircraft] = Aircraft.supported
 
-	// MARK: + Overrides
+	private func showSelectedAircraft() {
+		guard let selectedAircraft else { return}
+
+		let aircraftVC = AircraftViewController(aircraft: selectedAircraft)
+
+		navigationController?.pushViewController(
+			aircraftVC,
+			animated: true
+		)
+
+		self.selectedAircraft = nil
+	}
+
+	// MARK: + Default scope
+
+	var selectedAircraft: Aircraft?
 
 	override func vcLoadView() {
 		super.vcLoadView()
@@ -40,6 +55,11 @@ final class AircraftListViewController: CheckpointedViewController {
 		super.vcViewDidLoad()
 		title = "Select aircraft"
 		navigationController?.navigationBar.prefersLargeTitles = true
+	}
+
+	override func vcViewWillAppear(_ animated: Bool) {
+		super.vcViewWillAppear(animated)
+		showSelectedAircraft()
 	}
 }
 
@@ -75,9 +95,12 @@ extension AircraftListViewController: UITableViewDelegate {
 		_ tableView: UITableView,
 		didSelectRowAt indexPath: IndexPath
 	) {
-		tableView.deselectRow(at: indexPath, animated: true)
-		let selectedAircraft = aircrafts[indexPath.row]
-		let cabinVC = CabinViewController(aircraft: selectedAircraft)
-		navigationController?.pushViewController(cabinVC, animated: true)
+		tableView.deselectRow(
+			at: indexPath,
+			animated: true
+		)
+
+		selectedAircraft = aircrafts[indexPath.row]
+		showSelectedAircraft()
 	}
 }

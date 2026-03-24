@@ -2,6 +2,8 @@
 //  Aircraft.swift
 //  FlightSeatSelector
 //
+//  Created by vsmbd on 11/02/26.
+//
 
 import Foundation
 
@@ -11,20 +13,7 @@ import Foundation
 struct Aircraft: Sendable {
 	let manufacturer: String
 	let model: String
-
-	var displayName: String {
-		"\(manufacturer) \(model)"
-	}
-}
-
-// MARK: - Supported aircraft catalog
-
-extension Aircraft {
-	/// Currently supported aircraft. For now a single entry; later can be loaded from bundled JSON or open-source data.
-	static let supported: [Aircraft] = [
-		Aircraft(
-			manufacturer: "Airbus",
-			model: "A320"
-		)
-	]
+	/// Exterior and interior geometry (ratio-based; exterior width = 100). Used for cabin rendering and layout.
+	let geometry: AircraftGeometry
+	let layout: AircraftLayout
 }
