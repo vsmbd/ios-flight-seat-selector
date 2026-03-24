@@ -1,91 +1,51 @@
 # GOALS (FlightSeatSelector)
 
-These goals define what “done” means for the **reference app**. The bar here is not product completeness; it is *clarity, measurability, and reviewer impact*.
+These goals track what this repository should optimize for at its current maturity: clear structure, predictable behavior, and measurable rendering/interactions without pretending to be a full airline product.
 
----
+## 1) Keep the app narrow and reviewable
 
-## 1) Be a credible Principal/Staff signal
-
-- Demonstrate an opinionated architecture with **clean boundaries**:
-  - domain logic
-  - state management
-  - rendering and hit-testing
-  - interaction handling
-  - telemetry / instrumentation
-- Make tradeoffs explicit:
-  - why UIKit/CALayer (vs SwiftUI/Metal) for this reference
-  - why a particular state model
-  - what is intentionally kept simple
-- Keep the codebase reviewable in ~30–45 minutes:
-  - obvious entry points
-  - minimal magic
-  - documented invariants
-
----
-
-## 2) Prove interaction performance under load
-
-- Smooth pan/zoom/selection in a dense seat map.
-- Stable performance on older devices / older iOS targets (where feasible).
-- Rendering pipeline minimizes:
-  - view/layer churn
-  - repeated layout work
-  - per-frame allocations
-- Provide a stress mode for repeatable load testing:
-  - synthetic seat maps at multiple sizes
-  - controlled “worst-case” scenarios
+- Maintain a small, understandable code surface centered on one aircraft flow.
+- Keep domain and UI responsibilities separated (`Domain` vs `UI` folders).
+- Preserve obvious entry points (`AppDelegate`, `SceneDelegate`, list screen, cabin screen).
 
 Success criteria:
-- measurable spans for layout/apply/render
-- ability to demonstrate performance improvements with before/after traces
+- a new engineer can run the app and trace seat selection flow in under 15 minutes
 
----
+## 2) Ensure reliable seat-map interaction
 
-## 3) First-class observability (not just logs)
-
-- Emit structured events via `EventDispatch.default` and the `Event` protocol (see [CONVENTIONS.md](CONVENTIONS.md)) for:
-  - user inputs
-  - domain decisions
-  - rendering spans
-  - threading/queue context
-- Correlate cause → effect via checkpoints and event metadata (eventId, checkpoint, taskId).
-- No in-app event viewer; observability is Grafana-based (events flow to ClickHouse; reviewer uses dashboards).
+- Keep pinch/zoom + pan behavior stable across repeated layout passes.
+- Keep seat hit-testing deterministic for taps inside cabin content.
+- Preserve single-selection semantics (new selection clears previous selection).
 
 Success criteria:
-- a reviewer can reconstruct a bug/perf issue from events in Grafana
+- no ambiguous seat picks for repeated taps on the same point
+- no broken zoom/scroll state after rotation or layout changes
 
----
+## 3) Preserve rendering clarity and performance baseline
 
-## 4) Deterministic, testable behavior
-
-- State updates are explicit and centralized (avoid “random” side effects).
-- Seat selection rules are unit-testable without UI.
-- Layout primitives and hit-testing logic can be tested with deterministic inputs.
-
-Success criteria:
-- core rules covered by unit tests
-- layout/hit-testing has targeted tests or golden snapshots
-
----
-
-## 5) Be a portfolio-ready artifact
-
-- Fast onboarding:
-  - README explains the narrative and how to run
-  - demo script included
-- Clear “what to look at” pointers:
-  - where state lives
-  - where rendering happens
-  - where events are emitted
-- Optional integration docs for:
-  - ClickHouse sink + proxy
-  - Grafana dashboard
+- Continue using the current CALayer-based composition for seat/armrest/cabin rendering.
+- Avoid unnecessary layer churn during updates.
+- Keep geometry-to-screen mapping explicit and testable.
 
 Success criteria:
-- someone unfamiliar can run and “get it” in under 10 minutes
+- interaction remains visually smooth on simulator and representative devices
+- layout updates are localized to changed bounds/content values
 
----
+## 4) Keep telemetry integration practical
 
-## Conventions (technical alignment)
+- Maintain startup sink registration path in app bootstrap.
+- Keep telemetry optional at runtime (app still functions without a valid endpoint).
+- Ensure session/device baseline metadata remains attached when sink is enabled.
 
-See **[CONVENTIONS.md](CONVENTIONS.md)** for: EventDispatch + Event protocol, enum-based events with MonotonicNanostamp & Checkpoint, GCD-only (no Swift concurrency), CheckpointedResult (no throws), Grafana-only observability, seat data (bundled JSON + optional open-source by manufacturer/model).
+Success criteria:
+- app launches and runs whether sink setup succeeds or not
+- telemetry wiring can be verified from startup path without tracing unrelated modules
+
+## 5) Document what exists now (not planned architecture)
+
+- Keep README, goals, and non-goals aligned to implemented behavior.
+- Avoid documenting modules/patterns that are not currently in the codebase.
+- Update docs when behavior changes materially (selection model, supported aircraft, telemetry setup).
+
+Success criteria:
+- no stale references to removed docs or non-existent systems

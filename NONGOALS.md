@@ -1,61 +1,33 @@
 # NONGOALS (FlightSeatSelector)
 
-This repo is a reference app. The goal is to demonstrate engineering judgment and measurability, not to ship a commercial seat-selection product.
+This repo is a focused reference app. It is intentionally not trying to be a production airline booking product.
 
----
-
-## 1) Not an airline-grade seat map product
+## 1) Not a full airline seat commerce experience
 
 - No requirement to support every real airline configuration or cabin topology.
-- No commitment to full accessibility polish across all edge cases.
-- No advanced merchandising, offers, loyalty tiers, or payment flows.
+- No pricing, upsell, checkout, loyalty, or ancillary purchase flows.
+- No seat reservation lifecycle (holds, ticketing, backend confirmation).
 
----
+## 2) Not multi-aircraft catalog completeness
 
-## 2) Not a pixel-perfect design showcase
+- No requirement to support all aircraft families or cabin variants.
+- Current support for one aircraft model is acceptable unless scope is intentionally expanded.
+- No requirement for dynamic aircraft data ingestion in this phase.
 
-- UI polish is “good enough to review,” not a design system.
-- No extensive animation library or “marketing-grade” transitions by default.
-- Avoid spending weeks on visual perfection that does not improve the signal.
+## 3) Not a new rendering-tech showcase
 
----
+- No requirement to add SwiftUI/Metal just to increase technology surface area.
+- No renderer bake-off in this repository unless there is a concrete evaluation goal.
+- Keep implementation readable over framework novelty.
 
-## 3) Not an exhaustive framework demo
+## 4) Not a full observability platform
 
-Even if the broader ecosystem exists, this app should not become a dumping ground.
-- Do not integrate every platform abstraction “because it exists”.
-- Prefer a small set of high-impact integrations:
-  - telemetry
-  - concurrency discipline
-  - rendering boundary
+- No in-app dashboard, timeline, or debug console.
+- No ownership of ingestion pipeline reliability from this app.
+- No attempt to define ecosystem-wide telemetry schemas from here.
 
----
+## 5) Not broad product hardening
 
-## 4) Not a benchmarking contest without context
-
-- The point is not “Metal beats CALayer”.
-- The point is:
-  - define constraints
-  - measure honestly
-  - explain tradeoffs
-If Metal is added, it must be for a clear demonstration goal, not vanity.
-
----
-
-## 5) Not a complex backend project
-
-- The app may export events to external systems, but:
-  - it does not own backend reliability
-  - it does not implement a full ingestion platform
-- Any proxy/sink should be minimal, documented, and optional.
-
----
-
-## 6) Not maximum feature breadth
-
-Avoid scope creep:
-- seat assignment for multi-leg itineraries
-- seat holds across sessions
-- full offline caching strategy
-- multi-language localization
-These can be future expansions, but they are not required to meet the reference-app goals.
+- No commitment yet to exhaustive accessibility, localization, and offline support.
+- No persistence requirements for seat selection across launches.
+- No test matrix targeting all iOS/device permutations at this stage.
